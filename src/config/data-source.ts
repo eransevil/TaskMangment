@@ -7,27 +7,35 @@ dotenv.config();
 
 const isProduction = process.env.NODE_ENV === 'production';
 
-export const AppDataSource = new DataSource(
-  isProduction
-    ? {
-        type: 'postgres',
-        url: process.env.DATABASE_URL, // ⭐ Railway injects this
-        synchronize: false,
-        logging: false,
-        entities: [User, Task],
-        migrations: ['dist/migrations/**/*.js'],
-        ssl: false, // Railway internal network
-      }
-    : {
-        type: 'postgres',
-        host: process.env.DB_HOST || 'localhost',
-        port: parseInt(process.env.DB_PORT || '5432'),
-        username: process.env.DB_USERNAME || 'postgres',
-        password: process.env.DB_PASSWORD || 'postgres',
-        database: process.env.DB_DATABASE || 'task_management',
-        synchronize: true, // convenient locally
-        logging: false,
-        entities: [User, Task],
-        migrations: ['src/migrations/**/*.ts'],
-      }
-);
+const getConfig = () => {
+  const base = {
+    type: 'postgres' as const,
+    host: process.env.DB_HOST,
+    port: Number(process.env.DB_PORT || 5432),
+    username: process.env.DB_USERNAME,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_DATABASE,
+    entities: [User, Task],
+    logging: false,
+  };
+
+  if (isProduction) {
+    return {
+      ...base,
+      synchronize: false,
+      migrations: ['dist/migrations/**/*.js'],
+    };
+  }
+
+  return {
+    ...base,
+    host: base.host || 'localhost',
+    username: base.username || 'postgres',
+    password: base.password || 'postgres',
+    database: base.database || 'task_management',
+    synchronize: true,
+    migrations: ['src/migrations/**/*.ts'],
+  };
+};
+
+export const AppDataSource = new DataSource(getConfig());
