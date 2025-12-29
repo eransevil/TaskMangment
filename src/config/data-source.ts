@@ -2,7 +2,9 @@ import { DataSource } from 'typeorm';
 import { User } from '../entities/User';
 import { Task } from '../entities/Task';
 import * as dotenv from 'dotenv';
-
+console.log('=== ALL ENV VARIABLES ===');
+console.log(JSON.stringify(process.env, null, 2));
+console.log('=========================');
 // טען dotenv רק אם לא ב-production (Railway מזריק משתנים אוטומטית)
 if (process.env.NODE_ENV !== 'production') {
   dotenv.config();
@@ -10,6 +12,9 @@ if (process.env.NODE_ENV !== 'production') {
 
 console.log('process.env.NODE_ENV:', process.env.NODE_ENV);
 console.log('process.env.DATABASE_URL:', process.env.DATABASE_URL);
+console.log('=== ALL ENV VARIABLES ===');
+console.log(JSON.stringify(process.env, null, 2));
+console.log('=========================');
 
 const isProduction = process.env.NODE_ENV === 'production';
 
