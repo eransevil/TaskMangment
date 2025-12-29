@@ -29,12 +29,14 @@ app.get('/health', (req, res) => {
 });
 
 // Initialize database and start server
+let server: any;
+
 async function startServer() {
   try {
     await AppDataSource.initialize();
     console.log('Database connected successfully');
 
-    app.listen(PORT, () => {
+    server = app.listen(PORT, () => {
       console.log(`Server running on http://localhost:${PORT}`);
     });
   } catch (error) {
@@ -42,6 +44,34 @@ async function startServer() {
     process.exit(1);
   }
 }
+
+// Graceful shutdown handler
+async function shutdown() {
+  console.log('Shutting down gracefully...');
+  
+  if (server) {
+    server.close(() => {
+      console.log('HTTP server closed');
+    });
+  }
+  
+  if (AppDataSource.isInitialized) {
+    await AppDataSource.destroy();
+    console.log('Database connection closed');
+  }
+  
+  process.exit(0);
+}
+
+// Handle shutdown signals
+process.on('SIGTERM', shutdown);
+process.on('SIGINT', shutdown);
+
+// Handle uncaught errors
+process.on('unhandledRejection', (error) => {
+  console.error('Unhandled promise rejection:', error);
+  shutdown();
+});
 
 startServer();
 

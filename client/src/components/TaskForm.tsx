@@ -60,7 +60,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
       customFields:
         Object.keys(customFields).length > 0 ? customFields : undefined,
     });
-    
+
     // Reset form after successful submission
     resetForm();
   };
@@ -71,19 +71,21 @@ const TaskForm: React.FC<TaskFormProps> = ({
   };
 
   const renderCustomFields = () => {
+    // Note: Status 1 (Created) has no required data for any task type.
+    // All custom fields are optional during task creation.
+    // Required fields will be validated when advancing to the next status.
     if (type === TaskType.PROCUREMENT) {
       return (
         <div className="form-group">
-          <label>Vendor *</label>
+          <label>Vendor</label>
           <input
             type="text"
             value={customFields.vendor || ""}
             onChange={(e) =>
               setCustomFields({ ...customFields, vendor: e.target.value })
             }
-            required
           />
-          <label>Budget</label>
+          <label>Budget </label>
           <input
             type="number"
             value={customFields.budget || ""}
@@ -94,7 +96,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
               })
             }
           />
-          <label>Purchase Order Number</label>
+          <label>Purchase Order Number </label>
           <input
             type="text"
             value={customFields.purchaseOrderNumber || ""}
@@ -110,16 +112,15 @@ const TaskForm: React.FC<TaskFormProps> = ({
     } else if (type === TaskType.DEVELOPMENT) {
       return (
         <div className="form-group">
-          <label>Repository *</label>
+          <label>Repository </label>
           <input
             type="text"
             value={customFields.repository || ""}
             onChange={(e) =>
               setCustomFields({ ...customFields, repository: e.target.value })
             }
-            required
           />
-          <label>Branch</label>
+          <label>Branch </label>
           <input
             type="text"
             value={customFields.branch || ""}
@@ -127,7 +128,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
               setCustomFields({ ...customFields, branch: e.target.value })
             }
           />
-          <label>Pull Request URL</label>
+          <label>Pull Request URL </label>
           <input
             type="url"
             placeholder="https://PullRequestUrl.com"
@@ -139,7 +140,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
               })
             }
           />
-          <label>Tech Stack (comma-separated)</label>
+          <label>Tech Stack (comma-separated, optional)</label>
           <input
             type="text"
             value={
@@ -184,7 +185,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
       </div>
 
       <div className="form-group">
-        <label>Type *</label>
+        <label>Type </label>
         <select
           value={type}
           onChange={(e) => {
@@ -198,7 +199,7 @@ const TaskForm: React.FC<TaskFormProps> = ({
       </div>
 
       <div className="form-group">
-        <label>Assignee *</label>
+        <label>Assignee </label>
         <select
           value={assigneeId}
           onChange={(e) => setAssigneeId(e.target.value)}

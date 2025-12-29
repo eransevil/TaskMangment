@@ -65,15 +65,18 @@ export class ProcurementHandler implements TaskTypeHandler {
   }
 
   transformFields(status: number, fields: Record<string, any>): Record<string, any> {
-    // Normalize and sanitize fields; keep only fields relevant to this status
-    const transformed: Record<string, any> = {};
+    // Preserve ALL existing fields to maintain data continuity and audit trail.
+    // Only normalize/update fields relevant to the current status.
+    // This ensures no data loss during task progression.
+    const transformed: Record<string, any> = { ...fields };
 
     if (status === 1) {
-      // Created - no required fields; keep nothing specific
+      // Created - no required fields; preserve all existing fields
       return transformed;
     }
 
     if (status === 2) {
+      // Normalize status 2 fields (quote1, quote2) while preserving all others
       if (fields.quote1) {
         transformed.quote1 = String(fields.quote1).trim();
       }
@@ -84,6 +87,7 @@ export class ProcurementHandler implements TaskTypeHandler {
     }
 
     if (status === 3) {
+      // Normalize status 3 fields (receipt) while preserving all others
       if (fields.receipt) {
         transformed.receipt = String(fields.receipt).trim();
       }

@@ -136,20 +136,25 @@ export class TaskService {
     }
 
     // If custom fields are being updated, validate them for the current status
+    // Merge with existing fields to preserve data continuity
     if (dto.customFields !== undefined) {
       const handler = taskTypeRegistry.getHandler(task.type);
+      const existingFields = task.customFields || {};
+      const mergedFields = { ...existingFields, ...dto.customFields };
+      
       const validation = handler.validateStatusRequirements(
         task.status,
-        dto.customFields
+        mergedFields
       );
 
       if (!validation.valid) {
         throw new Error(`Validation failed: ${validation.errors.join(', ')}`);
       }
 
+      // transformFields now preserves all existing fields, only normalizing new ones
       const transformedFields = handler.transformFields(
         task.status,
-        dto.customFields
+        mergedFields
       );
       task.customFields = transformedFields;
     }

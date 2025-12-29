@@ -1,6 +1,6 @@
 import React from "react";
 import "./TaskList.css";
-import { Task, TaskState } from "../types";
+import { Task, TaskState, TaskType } from "../types";
 
 interface TaskListProps {
   tasks: Task[];
@@ -46,6 +46,70 @@ const TaskList: React.FC<TaskListProps> = ({
     return state === TaskState.COMPLETED;
   };
 
+  /**
+   * Get status-specific field labels for better display
+   */
+  const getFieldLabel = (key: string, type: TaskType): string => {
+    const fieldLabels: Record<string, Record<string, string>> = {
+      [TaskType.PROCUREMENT]: {
+        vendor: "Vendor",
+        budget: "Budget",
+        purchaseOrderNumber: "Purchase Order Number",
+        quote1: "Quote 1 (Status 2)",
+        quote2: "Quote 2 (Status 2)",
+        receipt: "Receipt (Status 3)",
+      },
+      [TaskType.DEVELOPMENT]: {
+        repository: "Repository",
+        branch: "Branch (Status 3)",
+        pullRequestUrl: "Pull Request URL",
+        techStack: "Tech Stack",
+        specification: "Specification (Status 2)",
+        version: "Version (Status 4)",
+      },
+    };
+    return fieldLabels[type]?.[key] || key;
+  };
+
+  /**
+   * Determine if a field is from a previous status (read-only context)
+   */
+  const isHistoricalField = (
+    key: string,
+    type: TaskType,
+    currentState: TaskState
+  ): boolean => {
+    // Status-specific fields that are from previous stages
+    const statusFields: Record<string, Record<string, number[]>> = {
+      [TaskType.PROCUREMENT]: {
+        quote1: [2],
+        quote2: [2],
+        receipt: [3],
+      },
+      [TaskType.DEVELOPMENT]: {
+        specification: [2],
+        branch: [3],
+        version: [4],
+      },
+    };
+
+    const fieldStatuses = statusFields[type]?.[key];
+    if (!fieldStatuses) return false;
+
+    // Map TaskState to approximate status for comparison
+    const stateToStatus: Record<TaskState, number> = {
+      [TaskState.DRAFT]: 1,
+      [TaskState.IN_PROGRESS]: 2,
+      [TaskState.REVIEW]: 3,
+      [TaskState.COMPLETED]: type === TaskType.PROCUREMENT ? 3 : 4,
+      [TaskState.CLOSED]: type === TaskType.PROCUREMENT ? 3 : 4,
+    };
+
+    const currentStatus = stateToStatus[currentState];
+    // Field is historical if it's from a status lower than current
+    return fieldStatuses.some((status) => status < currentStatus);
+  };
+
   if (tasks.length === 0) {
     return <div className="task-list-empty">No tasks found.</div>;
   }
@@ -75,16 +139,43 @@ const TaskList: React.FC<TaskListProps> = ({
             <p className="task-description">{task.description}</p>
           )}
 
-          {task.customFields && (
+          {task.customFields && Object.keys(task.customFields).length > 0 && (
             <div className="task-custom-fields">
-              <strong>Custom Fields:</strong>
+              <strong>Task Data (Complete Audit Trail):</strong>
               <ul>
-                {Object.entries(task.customFields).map(([key, value]) => (
-                  <li key={key}>
-                    <strong>{key}:</strong>{" "}
-                    {Array.isArray(value) ? value.join(", ") : String(value)}
-                  </li>
-                ))}
+                {Object.entries(task.customFields).map(([key, value]) => {
+                  const isHistorical = isHistoricalField(
+                    key,
+                    task.type,
+                    task.state
+                  );
+                  const label = getFieldLabel(key, task.type);
+                  return (
+                    <li key={key} style={{ opacity: isHistorical ? 0.7 : 1 }}>
+                      <strong>{label}:</strong>{" "}
+                      <span
+                        style={{
+                          fontStyle: isHistorical ? "italic" : "normal",
+                        }}
+                      >
+                        {Array.isArray(value)
+                          ? value.join(", ")
+                          : String(value)}
+                        {isHistorical && (
+                          <span
+                            style={{
+                              fontSize: "0.85em",
+                              color: "#6c757d",
+                              marginLeft: "8px",
+                            }}
+                          >
+                            (from previous status)
+                          </span>
+                        )}
+                      </span>
+                    </li>
+                  );
+                })}
               </ul>
             </div>
           )}

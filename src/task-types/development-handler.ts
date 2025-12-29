@@ -66,15 +66,18 @@ export class DevelopmentHandler implements TaskTypeHandler {
   }
 
   transformFields(status: number, fields: Record<string, any>): Record<string, any> {
-    // Normalize and sanitize fields; keep only fields relevant to this status
-    const transformed: Record<string, any> = {};
+    // Preserve ALL existing fields to maintain data continuity and audit trail.
+    // Only normalize/update fields relevant to the current status.
+    // This ensures no data loss during task progression.
+    const transformed: Record<string, any> = { ...fields };
 
     if (status === 1) {
-      // Created - no required fields
+      // Created - no required fields; preserve all existing fields
       return transformed;
     }
 
     if (status === 2) {
+      // Normalize status 2 fields (specification) while preserving all others
       if (fields.specification) {
         transformed.specification = String(fields.specification).trim();
       }
@@ -82,6 +85,7 @@ export class DevelopmentHandler implements TaskTypeHandler {
     }
 
     if (status === 3) {
+      // Normalize status 3 fields (branch) while preserving all others
       if (fields.branch) {
         transformed.branch = String(fields.branch).trim();
       }
@@ -89,6 +93,7 @@ export class DevelopmentHandler implements TaskTypeHandler {
     }
 
     if (status === 4) {
+      // Normalize status 4 fields (version) while preserving all others
       if (fields.version !== undefined) {
         transformed.version = String(fields.version).trim();
       }
