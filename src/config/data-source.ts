@@ -1,4 +1,4 @@
-import { DataSource, DataSourceOptions } from 'typeorm';
+import { DataSource } from 'typeorm';
 import { User } from '../entities/User';
 import { Task } from '../entities/Task';
 import * as dotenv from 'dotenv';
@@ -7,33 +7,33 @@ dotenv.config();
 
 const isProduction = process.env.NODE_ENV === 'production';
 
-const createDataSourceConfig = (): DataSourceOptions => {
-  const commonConfig = {
-    type: 'postgres' as const,
-    entities: [User, Task],
-    logging: !isProduction,
-  };
-
-  if (isProduction && process.env.DATABASE_URL) {
-    return {
-      ...commonConfig,
+const productionConfig = process.env.DATABASE_URL
+  ? {
+      type: 'postgres' as const,
       url: process.env.DATABASE_URL,
       ssl: { rejectUnauthorized: false },
-      migrations: ['dist/migrations/**/*.js'],
       synchronize: false,
-    };
-  }
+      logging: false,
+      entities: [User, Task],
+      migrations: ['dist/migrations/**/*.js'],
+      subscribers: [],
+    }
+  : null;
 
-  return {
-    ...commonConfig,
-    host: process.env.DB_HOST || 'localhost',
-    port: Number(process.env.DB_PORT || 5432),
-    username: process.env.DB_USERNAME || 'postgres',
-    password: process.env.DB_PASSWORD || 'postgres',
-    database: process.env.DB_DATABASE || 'task_management',
-    migrations: ['src/migrations/**/*.ts'],
-    synchronize: true,
-  };
+const localConfig = {
+  type: 'postgres' as const,
+  host: process.env.DB_HOST || 'localhost',
+  port: Number(process.env.DB_PORT || 5432),
+  username: process.env.DB_USERNAME || 'postgres',
+  password: process.env.DB_PASSWORD || 'postgres',
+  database: process.env.DB_DATABASE || 'task_management',
+  synchronize: true,
+  logging: true,
+  entities: [User, Task],
+  migrations: ['src/migrations/**/*.ts'],
+  subscribers: [],
 };
 
-export const AppDataSource = new DataSource(createDataSourceConfig());
+export const AppDataSource = new DataSource(
+  productionConfig && isProduction ? productionConfig : localConfig
+);

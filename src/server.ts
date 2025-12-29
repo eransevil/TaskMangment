@@ -13,8 +13,14 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 
 // Middleware
-app.use(cors());
 app.use(express.json());
+
+// Configure CORS
+app.use(cors({
+  origin: process.env.FRONTEND_URL || '*', // למשל https://your-frontend-url.vercel.app
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  credentials: true,
+}));
 
 // Initialize task type registry
 initializeTaskTypes();
@@ -33,11 +39,12 @@ let server: any;
 
 async function startServer() {
   try {
+    // Use DATABASE_URL from env
     await AppDataSource.initialize();
     console.log('Database connected successfully');
 
     server = app.listen(PORT, () => {
-      console.log(`Server running on http://localhost:${PORT}`);
+      console.log(`Server running on port ${PORT}`);
     });
   } catch (error) {
     console.error('Error during initialization:', error);
@@ -74,4 +81,3 @@ process.on('unhandledRejection', (error) => {
 });
 
 startServer();
-
