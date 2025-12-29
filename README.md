@@ -2,7 +2,15 @@
 
 An extensible task management platform built with a functional, composition-based architecture that cleanly separates core workflow rules from task-specific logic.
 
+## Live Demo
+
+- **Frontend**: [https://task-mangment-two.vercel.app/](https://task-mangment-two.vercel.app/)
+- **Backend API**: [https://taskmangment-production-56e9.up.railway.app/api](https://taskmangment-production-56e9.up.railway.app/api)
+- **Health Check**: [https://taskmangment-production-56e9.up.railway.app/health](https://taskmangment-production-56e9.up.railway.app/health)
+
 ## Architecture Highlights
+
+This platform demonstrates a clean, extensible architecture that separates core workflow logic from task-specific implementations. The design follows functional composition principles, avoiding classical OOP inheritance in favor of explicit contracts and a registry-based pattern that enables adding new task types without modifying existing code.
 
 ### Core Design Principles
 
@@ -152,7 +160,7 @@ npm install
 npm start
 ```
 
-The frontend will be available at `http://localhost:3001` (or another port if 3001 is in use)
+The frontend will be available at `http://localhost:3000` (Create React App default). The proxy in `package.json` is configured to forward API requests to the backend.
 
 ## API Endpoints
 
@@ -210,6 +218,10 @@ All tasks share a common **core workflow**:
 - Close:
   - Only allowed from the **final status** (max status)
   - Once closed, the task cannot be modified or moved
+- **Data Continuity**:
+  - All previously entered custom fields are preserved as read-only context
+  - Provides a complete audit trail of all data entered throughout the task lifecycle
+  - No data loss when advancing or reversing task statuses
 
 ### Per-Type Status Meanings & Requirements
 
@@ -254,7 +266,7 @@ All tasks share a common **core workflow**:
 ### Creating a Procurement Task
 
 ```bash
-curl -X POST http://localhost:3000/api/tasks \
+curl -X POST http://localhost:3001/api/tasks \
   -H "Content-Type: application/json" \
   -d '{
     "title": "Buy Office Supplies",
@@ -268,7 +280,7 @@ curl -X POST http://localhost:3000/api/tasks \
 ### Creating a Development Task
 
 ```bash
-curl -X POST http://localhost:3000/api/tasks \
+curl -X POST http://localhost:3001/api/tasks \
   -H "Content-Type: application/json" \
   -d '{
     "title": "Implement Feature X",
@@ -282,7 +294,7 @@ curl -X POST http://localhost:3000/api/tasks \
 ### Changing Status – Procurement (Status 1 → 2)
 
 ```bash
-curl -X POST http://localhost:3000/api/tasks/<task-id>/advance \
+curl -X POST http://localhost:3001/api/tasks/<task-id>/advance \
   -H "Content-Type: application/json" \
   -d '{
     "nextAssigneeId": "<user-id-optional>",
@@ -296,7 +308,7 @@ curl -X POST http://localhost:3000/api/tasks/<task-id>/advance \
 ### Changing Status – Procurement (Status 2 → 3)
 
 ```bash
-curl -X POST http://localhost:3000/api/tasks/<task-id>/advance \
+curl -X POST http://localhost:3001/api/tasks/<task-id>/advance \
   -H "Content-Type: application/json" \
   -d '{
     "customFields": {
@@ -308,7 +320,7 @@ curl -X POST http://localhost:3000/api/tasks/<task-id>/advance \
 ### Changing Status – Development (Status 1 → 2)
 
 ```bash
-curl -X POST http://localhost:3000/api/tasks/<task-id>/advance \
+curl -X POST http://localhost:3001/api/tasks/<task-id>/advance \
   -H "Content-Type: application/json" \
   -d '{
     "customFields": {
@@ -320,7 +332,7 @@ curl -X POST http://localhost:3000/api/tasks/<task-id>/advance \
 ### Changing Status – Development (Status 2 → 3)
 
 ```bash
-curl -X POST http://localhost:3000/api/tasks/<task-id>/advance \
+curl -X POST http://localhost:3001/api/tasks/<task-id>/advance \
   -H "Content-Type: application/json" \
   -d '{
     "customFields": {
@@ -332,7 +344,7 @@ curl -X POST http://localhost:3000/api/tasks/<task-id>/advance \
 ### Changing Status – Development (Status 3 → 4)
 
 ```bash
-curl -X POST http://localhost:3000/api/tasks/<task-id>/advance \
+curl -X POST http://localhost:3001/api/tasks/<task-id>/advance \
   -H "Content-Type: application/json" \
   -d '{
     "customFields": {
@@ -344,7 +356,7 @@ curl -X POST http://localhost:3000/api/tasks/<task-id>/advance \
 ### Closing a Task
 
 ```bash
-curl -X POST http://localhost:3000/api/tasks/<task-id>/close
+curl -X POST http://localhost:3001/api/tasks/<task-id>/close
 ```
 
 ## Development

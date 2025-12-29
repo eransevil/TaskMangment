@@ -19,7 +19,6 @@ async function seed() {
     await AppDataSource.query('TRUNCATE TABLE "tasks" CASCADE;');
     await AppDataSource.query('TRUNCATE TABLE "users" CASCADE;');
 
-    // Create users
     const users = [
       userRepository.create({
         name: 'Alice Johnson',
@@ -38,9 +37,7 @@ async function seed() {
     const savedUsers = await userRepository.save(users);
     console.log(`Created ${savedUsers.length} users`);
 
-    // Create tasks
     const tasks = [
-      // Procurement tasks
       taskRepository.create({
         title: 'Purchase Office Supplies',
         description: 'Order new office supplies for Q1',
@@ -50,7 +47,6 @@ async function seed() {
         state: TaskState.IN_PROGRESS,
         assignee: savedUsers[0],
         customFields: {
-          // Status 2 requires: quote1, quote2
           quote1: '5000 USD from Office Depot',
           quote2: '4800 USD from Staples',
         },
@@ -63,9 +59,7 @@ async function seed() {
         lifecycleState: TaskLifecycleState.OPEN,
         state: TaskState.DRAFT,
         assignee: savedUsers[1],
-        customFields: {
-          // Status 1 - Created: no required data
-        },
+        customFields: {},
       }),
       taskRepository.create({
         title: 'Purchase Server Equipment',
@@ -76,11 +70,9 @@ async function seed() {
         state: TaskState.COMPLETED,
         assignee: savedUsers[2],
         customFields: {
-          // Status 3 requires: receipt
           receipt: 'REC-2024-003 - Server purchase completed on 2024-01-15',
         },
       }),
-      // Development tasks
       taskRepository.create({
         title: 'Implement User Authentication',
         description: 'Add JWT-based authentication to the API',
@@ -90,7 +82,6 @@ async function seed() {
         state: TaskState.REVIEW,
         assignee: savedUsers[0],
         customFields: {
-          // Status 3 requires: branch
           branch: 'feature/auth',
         },
       }),
@@ -103,7 +94,6 @@ async function seed() {
         state: TaskState.COMPLETED,
         assignee: savedUsers[2],
         customFields: {
-          // Status 4 requires: version
           version: '1.0.0',
         },
       }),
@@ -116,7 +106,6 @@ async function seed() {
         state: TaskState.IN_PROGRESS,
         assignee: savedUsers[1],
         customFields: {
-          // Status 2 requires: specification
           specification: 'Fix payment gateway timeout issues. Implement retry logic with exponential backoff. Update error handling to provide better user feedback.',
         },
       }),
@@ -128,9 +117,7 @@ async function seed() {
         lifecycleState: TaskLifecycleState.OPEN,
         state: TaskState.DRAFT,
         assignee: savedUsers[0],
-        customFields: {
-          // Status 1 - Created: no required data
-        },
+        customFields: {},
       }),
     ];
 
