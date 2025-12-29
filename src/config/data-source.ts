@@ -23,7 +23,7 @@ const productionConfig = process.env.DATABASE_URL
       type: 'postgres' as const,
       url: process.env.DATABASE_URL,
       ssl: { rejectUnauthorized: false },
-      synchronize: true,
+      synchronize: false,
       logging: false,
       entities: [User, Task],
       migrations: ['dist/migrations/**/*.js'],
