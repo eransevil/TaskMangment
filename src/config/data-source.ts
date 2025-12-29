@@ -4,6 +4,8 @@ import { Task } from '../entities/Task';
 import * as dotenv from 'dotenv';
 
 dotenv.config();
+console.log('process.env.NODE_ENV' ,process.env.NODE_ENV);
+console.log('process.env.DATABASE_URL' ,process.env.DATABASE_URL);
 
 const isProduction = process.env.NODE_ENV === 'production';
 
