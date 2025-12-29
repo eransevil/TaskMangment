@@ -1,10 +1,9 @@
 import { Task, User, TaskType } from './types';
 
 const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:3001/api';
+console.log('API_BASE', API_BASE);
 
-console.log('process.env.REACT_APP_API_URL ', process.env.REACT_APP_API_URL);
 
-// פונקציה לבדיקה אם מחרוזת היא UUID חוקי
 function validateUUID(id: string) {
   const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
   if (!uuidRegex.test(id)) {
