@@ -12,16 +12,31 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+const allowedOrigins = [
+  'https://task-mangment-two.vercel.app',
+  'http://localhost:5173',
+  'http://localhost:3000'
+];
+
+
 // Middleware
 app.use(express.json());
 
 // Configure CORS
 app.use(cors({
-  origin: process.env.FRONTEND_URL || '*', // למשל https://your-frontend-url.vercel.app
+  origin: (origin, callback) => {
+    // מאפשר requests ללא origin (כמו Postman)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   credentials: true,
 }));
-
 // Initialize task type registry
 initializeTaskTypes();
 
