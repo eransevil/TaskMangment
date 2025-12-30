@@ -4,8 +4,8 @@ An extensible task management platform built with a functional, composition-base
 
 ## Live Demo
 
-- **Frontend**: [https://task-mangment-two.vercel.app/](https://task-mangment-two.vercel.app/)
-- **Backend API**: [https://taskmangment-production-56e9.up.railway.app/api](https://taskmangment-production-56e9.up.railway.app/api)
+- **Frontend**: [https://task-mangment-two.vercel.app/]
+- **Backend API**: [https://taskmangment-production-56e9.up.railway.app/api]
 
 ## Architecture Highlights
 
