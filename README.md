@@ -6,7 +6,6 @@ An extensible task management platform built with a functional, composition-base
 
 - **Frontend**: [https://task-mangment-two.vercel.app/](https://task-mangment-two.vercel.app/)
 - **Backend API**: [https://taskmangment-production-56e9.up.railway.app/api](https://taskmangment-production-56e9.up.railway.app/api)
-- **Health Check**: [https://taskmangment-production-56e9.up.railway.app/health](https://taskmangment-production-56e9.up.railway.app/health)
 
 ## Architecture Highlights
 
@@ -16,13 +15,13 @@ This platform demonstrates a clean, extensible architecture that separates core 
 
 1. **Registry-Based Task Types**: New task types can be added without modifying existing code by implementing the `TaskTypeHandler` interface and registering it.
 
-2. **Centralized Workflow Engine**: All state transitions (advance, reverse, close) are handled by a single `WorkflowEngine` class that enforces rules for all task types.
+2. **Centralized Workflow Engine**: All state transitions (advance, reverse, close) are handled by pure functions (`changeStatus`, `closeTask`) in `workflow.ts` that enforce rules for all task types.
 
-3. **Composition Over Inheritance**: Task type handlers use composition and explicit contracts rather than classical OOP inheritance.
+3. **Functional Composition**: The architecture uses pure functions and plain objects rather than classes. Task type handlers are plain objects implementing the `TaskTypeHandler` interface, and services are pure functions that compose together.
 
 4. **Separation of Concerns**:
-   - **Core Workflow Rules** (`src/core/workflow.ts`): Apply to all tasks
-   - **Task-Specific Rules** (`src/task-types/`): Apply only to specific task types
+   - **Core Workflow Rules** (`src/core/workflow.ts`): Pure functions that apply to all tasks
+   - **Task-Specific Rules** (`src/task-types/`): Plain objects with functions that apply only to specific task types
 
 ### Adding a New Task Type
 
@@ -377,14 +376,14 @@ npm run migration:revert
 ### Code Structure
 
 - **Entities**: Define database schema using TypeORM decorators
-- **Core**: Contains workflow engine and registry - no task-specific logic
-- **Task Types**: Each handler implements validation and field transformation
-- **Services**: Business logic that orchestrates workflow engine and task type handlers
-- **Routes**: HTTP endpoints that call services
+- **Core**: Contains workflow functions (`changeStatus`, `closeTask`) and registry functions - no task-specific logic
+- **Task Types**: Plain objects implementing the `TaskTypeHandler` interface with validation and field transformation functions
+- **Services**: Pure functions that orchestrate workflow functions and task type handlers
+- **Routes**: HTTP endpoints that call service functions
 
 ## Testing the Extensibility
 
-To verify the architecture supports adding new task types without touching existing code:
+For adding new task types without touching existing code:
 
 1. Create a new handler (e.g., `marketing-handler.ts`)
 2. Implement `TaskTypeHandler` interface
@@ -394,7 +393,3 @@ To verify the architecture supports adding new task types without touching exist
    - Workflow engine works without changes
    - Existing task types continue to work
    - No conditional logic was added to core files
-
-## License
-
-ISC

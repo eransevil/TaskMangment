@@ -1,32 +1,28 @@
 import { Router, Request, Response } from 'express';
 import { AppDataSource } from '../config/data-source';
-import { TaskService } from '../services/task-service';
+import * as taskService from '../services/task-service';
 import { Task } from '../entities/Task';
 import { User } from '../entities/User';
 
 const router = Router();
-const taskService = new TaskService(
-  AppDataSource.getRepository(Task),
-  AppDataSource.getRepository(User)
-);
+const taskRepository = AppDataSource.getRepository(Task);
+const userRepository = AppDataSource.getRepository(User);
 
-// Get all tasks
 router.get('/', async (req: Request, res: Response) => {
   try {
     const userId = req.query.userId as string | undefined;
     const tasks = userId
-      ? await taskService.getTasksByUser(userId)
-      : await taskService.getAllTasks();
+      ? await taskService.getTasksByUser(taskRepository, userId)
+      : await taskService.getAllTasks(taskRepository);
     res.json(tasks);
   } catch (error) {
     res.status(500).json({ error: (error as Error).message });
   }
 });
 
-// Get task by ID
 router.get('/:id', async (req: Request, res: Response) => {
   try {
-    const task = await taskService.getTaskById(req.params.id);
+    const task = await taskService.getTaskById(taskRepository, req.params.id);
     if (!task) {
       return res.status(404).json({ error: 'Task not found' });
     }
@@ -36,20 +32,18 @@ router.get('/:id', async (req: Request, res: Response) => {
   }
 });
 
-// Create task
 router.post('/', async (req: Request, res: Response) => {
   try {
-    const task = await taskService.createTask(req.body);
+    const task = await taskService.createTask(taskRepository, userRepository, req.body);
     res.status(201).json(task);
   } catch (error) {
     res.status(400).json({ error: (error as Error).message });
   }
 });
 
-// Update task
 router.patch('/:id', async (req: Request, res: Response) => {
   try {
-    const task = await taskService.updateTask(req.params.id, req.body);
+    const task = await taskService.updateTask(taskRepository, req.params.id, req.body);
     res.json(task);
   } catch (error) {
     const message = (error as Error).message;
@@ -60,10 +54,9 @@ router.patch('/:id', async (req: Request, res: Response) => {
   }
 });
 
-// Advance task
 router.post('/:id/advance', async (req: Request, res: Response) => {
   try {
-    const task = await taskService.advanceTask(req.params.id, req.body);
+    const task = await taskService.advanceTask(taskRepository, userRepository, req.params.id, req.body);
     res.json(task);
   } catch (error) {
     const message = (error as Error).message;
@@ -74,10 +67,9 @@ router.post('/:id/advance', async (req: Request, res: Response) => {
   }
 });
 
-// Reverse task
 router.post('/:id/reverse', async (req: Request, res: Response) => {
   try {
-    const task = await taskService.reverseTask(req.params.id, req.body);
+    const task = await taskService.reverseTask(taskRepository, userRepository, req.params.id, req.body);
     res.json(task);
   } catch (error) {
     const message = (error as Error).message;
@@ -88,10 +80,9 @@ router.post('/:id/reverse', async (req: Request, res: Response) => {
   }
 });
 
-// Close task
 router.post('/:id/close', async (req: Request, res: Response) => {
   try {
-    const task = await taskService.closeTask(req.params.id);
+    const task = await taskService.closeTask(taskRepository, req.params.id);
     res.json(task);
   } catch (error) {
     const message = (error as Error).message;
@@ -103,4 +94,3 @@ router.post('/:id/close', async (req: Request, res: Response) => {
 });
 
 export default router;
-
