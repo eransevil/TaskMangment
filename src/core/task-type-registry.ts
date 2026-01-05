@@ -33,10 +33,10 @@ export function getHandler(type: TaskType): TaskTypeHandler {
   return handler;
 }
 
+//for now not used
 export function hasHandler(type: TaskType): boolean {
   return handlers.has(type);
 }
-
 export function getRegisteredTypes(): TaskType[] {
   return Array.from(handlers.keys());
 }

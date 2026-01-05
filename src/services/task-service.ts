@@ -29,6 +29,7 @@ export interface UpdateTaskDto {
   customFields?: Record<string, any>;
 }
 
+//Currently, if the assignee cannot be changed from the frontend, the task can be returned directly from the database without reloading.
 async function reloadTaskWithAssignee(
   taskRepository: Repository<Task>,
   taskId: string
@@ -43,6 +44,7 @@ async function reloadTaskWithAssignee(
   return task;
 }
 
+// Maps numeric workflow status to a high-level task state
 function mapStatusToState(
   status: number,
   lifecycleState: TaskLifecycleState,
@@ -68,6 +70,7 @@ function mapStatusToState(
   return TaskState.REVIEW;
 }
 
+// Creates a new task with initial status and validated custom fields
 export async function createTask(
   taskRepository: Repository<Task>,
   userRepository: Repository<User>,
@@ -107,6 +110,8 @@ export async function createTask(
   return reloadTaskWithAssignee(taskRepository, savedTask.id);
 }
 
+
+// Retrieves a single task by id including its assignee
 export async function getTaskById(
   taskRepository: Repository<Task>,
   id: string
@@ -117,6 +122,7 @@ export async function getTaskById(
   });
 }
 
+// Returns all tasks assigned to a specific user
 export async function getTasksByUser(
   taskRepository: Repository<Task>,
   userId: string
@@ -128,6 +134,8 @@ export async function getTasksByUser(
   });
 }
 
+
+// Returns all tasks in the system ordered by creation date
 export async function getAllTasks(
   taskRepository: Repository<Task>
 ): Promise<Task[]> {
@@ -137,6 +145,7 @@ export async function getAllTasks(
   });
 }
 
+// Updates editable task fields while enforcing workflow validation rules
 export async function updateTask(
   taskRepository: Repository<Task>,
   id: string,
@@ -176,6 +185,8 @@ export async function updateTask(
   return reloadTaskWithAssignee(taskRepository, savedTask.id);
 }
 
+
+// Changes task status forward or backward according to workflow rules
 export async function changeTaskStatus(
   taskRepository: Repository<Task>,
   userRepository: Repository<User>,
@@ -217,6 +228,8 @@ export async function changeTaskStatus(
     }
   }
 
+
+  // Assignee change - not supported yet from fronted 
   let nextAssigneeId = task.assigneeId;
   if (dto.nextAssigneeId && dto.nextAssigneeId !== task.assigneeId) {
     const nextAssignee = await userRepository.findOne({
@@ -243,6 +256,8 @@ export async function changeTaskStatus(
   return reloadTaskWithAssignee(taskRepository, savedTask.id);
 }
 
+
+// Advances a task one step forward in the workflow
 export async function advanceTask(
   taskRepository: Repository<Task>,
   userRepository: Repository<User>,
@@ -252,6 +267,8 @@ export async function advanceTask(
   return changeTaskStatus(taskRepository, userRepository, id, { ...dto, direction: 'forward' });
 }
 
+
+// Reverts a task one step backward in the workflow
 export async function reverseTask(
   taskRepository: Repository<Task>,
   userRepository: Repository<User>,
@@ -261,6 +278,8 @@ export async function reverseTask(
   return changeTaskStatus(taskRepository, userRepository, id, { ...dto, direction: 'backward' });
 }
 
+
+// Closes a task after validating final status requirements
 export async function closeTask(
   taskRepository: Repository<Task>,
   id: string
